@@ -8,6 +8,12 @@ This is a web application built with **Streamlit** and **LangChain**, which allo
 - **Ask Questions**: Users can ask questions based on the content of the uploaded PDF, and the app will provide answers using Google's Generative AI.
 - **RAG Approach**: Combines document retrieval from the uploaded PDF with the powerful response generation model from Google to ensure concise and relevant answers.
 
+## Screenshots
+- ![image](https://github.com/user-attachments/assets/667ed0ec-6052-462a-812f-874d1d29249d)
+
+- ![image](https://github.com/user-attachments/assets/2dec4954-862f-4738-bd37-68a093f4178e)
+
+
 ## Technologies Used
 
 - **Streamlit**: For building the web application.
