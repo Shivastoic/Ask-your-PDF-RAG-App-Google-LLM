@@ -1,0 +1,39 @@
+# Python virtual environment
+venv/
+env/
+myenv/
+*.pyc
+*.pyo
+__pycache__/
+*.pyd
+*.pdb
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+
+# macOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+Desktop.ini
+
+# Python egg files
+*.egg-info/
+*.egg
+
+# Logs and debug output
+*.log
+
+# Streamlit cache files
+.streamlit/
+
+# PyCharm project files
+.idea/
+
+# VSCode settings
+.vscode/
+
