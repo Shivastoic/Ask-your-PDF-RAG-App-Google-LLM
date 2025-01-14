@@ -2,6 +2,8 @@
 
 This is a web application built with **Streamlit** and **LangChain**, which allows users to ask questions based on the contents of a PDF document. The app uses a **retrieval-augmented generation** (RAG) approach, combining **ChromaDB** for document storage and retrieval, along with **Google's Generative AI** model to answer user queries.
 
+## Live Link: {https://askyourpdffile.streamlit.app/}
+
 ## Features
 
 - **Upload PDF**: Users can upload PDF files (up to 30 pages).
