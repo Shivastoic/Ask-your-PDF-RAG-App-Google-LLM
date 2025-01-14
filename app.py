@@ -1,3 +1,7 @@
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
 import os
 import sys
 import tempfile
@@ -14,9 +18,6 @@ from PyPDF2 import PdfReader
 from chromadb.config import Settings  # For ChromaDB configuration
 from dotenv import load_dotenv
 
-# Use pysqlite3 for compatibility
-__import__('pysqlite3')
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 # Load environment variables
 load_dotenv()
