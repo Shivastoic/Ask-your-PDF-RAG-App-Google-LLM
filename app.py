@@ -14,6 +14,7 @@ from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from PyPDF2 import PdfReader
+from chromadb.config import Settings  # For in-memory ChromaDB
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -45,10 +46,11 @@ if uploaded_file is not None:
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000)
         docs = text_splitter.split_documents(data)
 
-        # Create a vector store for retrieval
+        # Use in-memory ChromaDB
         vectorstore = Chroma.from_documents(
             documents=docs,
-            embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+            embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"),
+            client_settings=Settings(persist_directory=None)  # Use in-memory mode
         )
 
         retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 10})
