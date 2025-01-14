@@ -1,10 +1,7 @@
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-
-import streamlit as st
 import os
+import sys
 import tempfile
+import streamlit as st
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
@@ -14,8 +11,12 @@ from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from PyPDF2 import PdfReader
-from chromadb.config import Settings  # For in-memory ChromaDB
+from chromadb.config import Settings  # For ChromaDB configuration
 from dotenv import load_dotenv
+
+# Use pysqlite3 for compatibility
+__import__('pysqlite3')
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 # Load environment variables
 load_dotenv()
@@ -46,49 +47,50 @@ if uploaded_file is not None:
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000)
         docs = text_splitter.split_documents(data)
 
-        # Use in-memory ChromaDB
-        vectorstore = Chroma.from_documents(
-            documents=docs,
-            embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"),
-            client_settings=Settings(persist_directory=None)  # Use in-memory mode
-        )
+        # Use a temporary directory for ChromaDB persistence
+        with tempfile.TemporaryDirectory() as temp_dir:
+            vectorstore = Chroma.from_documents(
+                documents=docs,
+                embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"),
+                client_settings=Settings(persist_directory=temp_dir)
+            )
 
-        retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 10})
+            retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 10})
 
-        # Set up the LLM
-        llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0, max_tokens=None, timeout=None)
+            # Set up the LLM
+            llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0, max_tokens=None, timeout=None)
 
-        # System prompt for the model
-        system_prompt = (
-            "You are an assistant for question-answering tasks. "
-            "Use the following pieces of retrieved context to answer "
-            "the question. If you don't know the answer, say that you "
-            "don't know. Use three sentences maximum and keep the "
-            "answer concise."
-            "\n\n"
-            "{context}"
-        )
+            # System prompt for the model
+            system_prompt = (
+                "You are an assistant for question-answering tasks. "
+                "Use the following pieces of retrieved context to answer "
+                "the question. If you don't know the answer, say that you "
+                "don't know. Use three sentences maximum and keep the "
+                "answer concise."
+                "\n\n"
+                "{context}"
+            )
 
-        prompt = ChatPromptTemplate.from_messages(
-            [
-                ("system", system_prompt),
-                ("human", "{input}"),
-            ]
-        )
+            prompt = ChatPromptTemplate.from_messages(
+                [
+                    ("system", system_prompt),
+                    ("human", "{input}"),
+                ]
+            )
 
-        # Chat input for user queries
-        query = st.chat_input("Ask something about the uploaded document: ")
+            # Chat input for user queries
+            query = st.chat_input("Ask something about the uploaded document: ")
 
-        if query:
-            # Create chains for retrieval and answering
-            question_answer_chain = create_stuff_documents_chain(llm, prompt)
-            rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+            if query:
+                # Create chains for retrieval and answering
+                question_answer_chain = create_stuff_documents_chain(llm, prompt)
+                rag_chain = create_retrieval_chain(retriever, question_answer_chain)
 
-            # Get the response
-            response = rag_chain.invoke({"input": query})
+                # Get the response
+                response = rag_chain.invoke({"input": query})
 
-            # Display the response
-            st.write(response["answer"])
+                # Display the response
+                st.write(response["answer"])
 
     # Clean up the temporary file after processing
     os.remove(temp_file_path)
